@@ -19,7 +19,6 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController adresseController = TextEditingController();
 
-  // Fonction pour s'inscrire avec email et mot de passe
   Future<void> registerUser() async {
     try {
       final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
@@ -27,7 +26,6 @@ class _SignupPageState extends State<SignupPage> {
         password: passwordController.text,
       );
 
-      // Ajouter l'utilisateur dans Firestore
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'prenom': prenomController.text,
         'nom': nomController.text,
@@ -39,54 +37,10 @@ class _SignupPageState extends State<SignupPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Compte créé avec succès!'),
       ));
-      Navigator.pop(context);
-    } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Erreur'),
-          content: Text(e.toString()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()), 
       );
-    }
-  }
-
-  // Fonction pour s'inscrire avec Google
-  Future<void> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return; // L'utilisateur a annulé la connexion.
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-
-      // Ajouter l'utilisateur dans Firestore s'il s'agit d'un nouvel utilisateur
-      final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
-      if (!userDoc.exists) {
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'prenom': googleUser.displayName?.split(' ').first ?? '',
-          'nom': googleUser.displayName?.split(' ').last ?? '',
-          'email': googleUser.email,
-          'adresse': '',
-          'photoUrl': googleUser.photoUrl ?? '',
-        });
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Connexion réussie avec Google!'),
-      ));
-      Navigator.pop(context);
     } catch (e) {
       showDialog(
         context: context,
@@ -119,13 +73,7 @@ class _SignupPageState extends State<SignupPage> {
             TextField(controller: adresseController, decoration: InputDecoration(labelText: 'Adresse')),
             SizedBox(height: 20),
             ElevatedButton(onPressed: registerUser, child: Text('S\'inscrire')),
-            /* SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: signInWithGoogle,
-              icon: Icon(Icons.login),
-              label: Text('S\'inscrire avec Google'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            ), */
+
             SizedBox(height: 20),
             TextButton(
               onPressed: () {
