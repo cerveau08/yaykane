@@ -5,6 +5,7 @@ class AppUser {
   final String email;
   final String adresse;
   final String? photoUrl;
+  final String role;
 
   AppUser({
     required this.uid,
@@ -13,6 +14,7 @@ class AppUser {
     required this.email,
     required this.adresse,
     this.photoUrl,
+    required this.role,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class AppUser {
       'email': email,
       'adresse': adresse,
       'photoUrl': photoUrl,
+      'role': role,
     };
   }
 
@@ -34,6 +37,7 @@ class AppUser {
       email: map['email'],
       adresse: map['adresse'],
       photoUrl: map['photoUrl'],
+      role: map['role'],
     );
   }
 }

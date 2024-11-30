@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:yaykane/pages/admin.dart';
 import 'package:yaykane/pages/taches.dart';
 import 'package:yaykane/widgets/menudrawer.dart';
 
 class Accueil extends StatefulWidget {
-  const Accueil({super.key});
+  final String userId;
+  const Accueil({required this.userId, super.key});
 
   @override
   State<Accueil> createState() => _AccueilState();
@@ -11,22 +14,51 @@ class Accueil extends StatefulWidget {
 
 class _AccueilState extends State<Accueil> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? _userRole;
   int _indexSelector = 0;
 
-  // Méthode pour afficher différents widgets selon l'onglet sélectionné
   Widget getBodyContent() {
+    if (_userRole == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     switch (_indexSelector) {
       case 0:
-        return Center(child: Text('Bienvenue sur votre application'));
+        return const Center(child: Text('Bienvenue sur votre application'));
       case 1:
-        return Center(child: TachePage());
+        return const Center(child: TachePage());
       case 2:
-        return Center(child: TachePage());
+        return const Center(child: TachePage());
       case 3:
-        return Center(child: Text('Informations sur le compte'));
+        return AdminPage(userRole: _userRole!);
       default:
-        return Center(child: Text('Onglet inconnu'));
+        return const Center(child: Text('Onglet inconnu'));
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserRole();
+  }
+
+  Future<void> _getUserRole() async {
+    try {
+      final doc = await _firestore.collection('users').doc(widget.userId).get();
+      if (doc.exists) {
+        setState(() {
+          _userRole = doc['role'];
+        });
+      } else {
+        setState(() {
+          _userRole = 'MEMBRE';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _userRole = 'MEMBRE';
+      });
     }
   }
 
@@ -58,15 +90,14 @@ class _AccueilState extends State<Accueil> {
               ),
             ),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Accueil()),
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Vous êtes déjà sur la page d'accueil.")),
               );
             },
           ),
         ],
       ),
-      drawer: MenuDrawer(),
+      drawer: const MenuDrawer(),
       body: getBodyContent(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

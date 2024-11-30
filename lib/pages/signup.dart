@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:yaykane/pages/login.dart';
 
 class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _SignupPageState createState() => _SignupPageState();
 }
 
@@ -25,32 +27,37 @@ class _SignupPageState extends State<SignupPage> {
         email: emailController.text,
         password: passwordController.text,
       );
-
+      final String uid = userCredential.user!.uid;
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'uid': uid,
         'prenom': prenomController.text,
         'nom': nomController.text,
         'email': emailController.text,
         'adresse': adresseController.text,
         'photoUrl': userCredential.user!.photoURL ?? '',
+        'role': 'MEMBRE'
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Compte créé avec succès!'),
       ));
       Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (context) => LoginPage()), 
       );
     } catch (e) {
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Erreur'),
+          title: const Text('Erreur'),
           content: Text(e.toString()),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -61,20 +68,20 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Créer un compte')),
+      appBar: AppBar(title: const Text('Créer un compte')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(controller: prenomController, decoration: InputDecoration(labelText: 'Prénom')),
-            TextField(controller: nomController, decoration: InputDecoration(labelText: 'Nom')),
-            TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email')),
-            TextField(controller: passwordController, decoration: InputDecoration(labelText: 'Mot de passe'), obscureText: true),
-            TextField(controller: adresseController, decoration: InputDecoration(labelText: 'Adresse')),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: registerUser, child: Text('S\'inscrire')),
+            TextField(controller: prenomController, decoration: const InputDecoration(labelText: 'Prénom')),
+            TextField(controller: nomController, decoration: const InputDecoration(labelText: 'Nom')),
+            TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
+            TextField(controller: passwordController, decoration: const InputDecoration(labelText: 'Mot de passe'), obscureText: true),
+            TextField(controller: adresseController, decoration: const InputDecoration(labelText: 'Adresse')),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: registerUser, child: const Text('S\'inscrire')),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextButton(
               onPressed: () {
                 Navigator.push(
@@ -82,7 +89,7 @@ class _SignupPageState extends State<SignupPage> {
                   MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
-              child: Text("Se connecter"),
+              child: const Text("Se connecter"),
             ),
           ],
         ),
